@@ -45,8 +45,8 @@ export default async function FeedQuestoesPage({
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col bg-muted/10">
-          <div className="@container/main flex flex-1 flex-col gap-2 mx-auto w-full max-w-6xl pt-6">
-            <div className="flex flex-col py-4 md:py-6 px-4 pb-20">
+          <div className="@container/main flex flex-1 flex-col gap-2 mx-auto w-full max-w-6xl pt-2 sm:pt-6">
+            <div className="flex flex-col py-2 md:py-6 px-2 sm:px-4 pb-20">
               <FiltersComponent />
 
               <QuestoesHeader count={total} role={role} />

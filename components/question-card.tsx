@@ -101,18 +101,18 @@ export function QuestionCard({ data, isPreview = false }: QuestionCardProps) {
     <div className="flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300">
 
       {/* ── Top Header ────────────────────────────── */}
-      <div className="flex items-center gap-3 px-6 py-3 bg-muted/40 rounded-t-xl overflow-x-auto whitespace-nowrap">
-        <span className="text-sm font-semibold text-muted-foreground min-w-4">{data.index}</span>
-        <Badge variant="secondary" className="rounded-md font-mono text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-200">
+      <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-muted/40 rounded-t-xl overflow-x-auto whitespace-nowrap scrollbar-none">
+        <span className="text-xs sm:text-sm font-semibold text-muted-foreground min-w-4">{data.index}</span>
+        <Badge variant="secondary" className="rounded-md font-mono text-[10px] sm:text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-200">
           {data.publicCode}
         </Badge>
         {getSourceBadge()}
         {getDifficultyBadge()}
 
-        <div className="flex items-center text-sm text-muted-foreground ml-2">
-          <span>{data.subject}</span>
-          <ChevronRightIcon className="mx-2 size-3.5 opacity-50" />
-          <span>{data.topic}</span>
+        <div className="flex items-center text-[12px] sm:text-sm text-muted-foreground ml-1 sm:ml-2">
+          <span className="truncate max-w-[100px] sm:max-w-none">{data.subject}</span>
+          <ChevronRightIcon className="mx-1 sm:mx-2 size-3 sm:size-3.5 opacity-50" />
+          <span className="truncate max-w-[100px] sm:max-w-none">{data.topic}</span>
         </div>
 
         {/* Right: community stats + user state */}
@@ -125,14 +125,14 @@ export function QuestionCard({ data, isPreview = false }: QuestionCardProps) {
           )}
           {previousAttempt != null && (
             <div className={cn(
-              "hidden sm:flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full",
+              "hidden xs:flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full",
               previousAttempt.isCorrect
                 ? "bg-green-500/10 text-green-700 dark:text-green-400"
                 : "bg-red-500/10 text-red-700 dark:text-red-400"
             )}>
               {previousAttempt.isCorrect
-                ? <><CheckCircle2Icon className="size-3" /> Acertou antes</>
-                : <><XCircleIcon className="size-3" /> Errou antes</>}
+                ? <><CheckCircle2Icon className="size-3" /> <span className="hidden sm:inline">Acertou antes</span></>
+                : <><XCircleIcon className="size-3" /> <span className="hidden sm:inline">Errou antes</span></>}
             </div>
           )}
           {data.stats && (
@@ -144,19 +144,18 @@ export function QuestionCard({ data, isPreview = false }: QuestionCardProps) {
       </div>
 
       {/* ── Meta Row ──────────────────────────────── */}
-      <div className="px-6 py-3 border-b bg-background flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+      <div className="px-4 sm:px-6 py-2 sm:py-3 border-b bg-background flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-1 sm:gap-y-2 text-[12px] sm:text-sm text-muted-foreground">
         <p><span className="font-medium text-foreground">Ano:</span> {data.year}</p>
         <p><span className="font-medium text-foreground">Banca:</span> {data.board}</p>
-        <p><span className="font-medium text-foreground">Órgão:</span> {data.institution}</p>
-        <p className="hover:underline cursor-pointer text-primary/80">
+        <p className="hidden sm:block"><span className="font-medium text-foreground">Órgão:</span> {data.institution}</p>
+        <p className="hover:underline cursor-pointer text-primary/80 truncate max-w-[200px] sm:max-w-none">
           <span className="font-medium text-foreground mr-1">Prova:</span>{data.exam}
         </p>
-        {data.career && <p><span className="font-medium text-foreground">Carreira:</span> {data.career}</p>}
       </div>
 
       {/* ── Stem ──────────────────────────────────── */}
       <div 
-        className="px-6 py-8 leading-relaxed text-foreground font-[450] text-pretty"
+        className="px-4 sm:px-6 py-6 sm:py-8 leading-relaxed text-foreground font-[450] text-pretty"
         style={{ fontSize: 'var(--base-font-size, 15px)' }}
       >
         <p>{data.stem}</p>

@@ -24,6 +24,15 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { fetchFilterOptions } from "@/app/actions/questions"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 /* ─── Types ──────────────────────────────────── */
 interface FilterOption {
@@ -153,59 +162,139 @@ export function QuestionFilters() {
     filterGroups.find((g) => g.id === groupId)?.options.find((o) => o.value === value)?.label ?? value
 
   return (
-    <div className="w-full mb-8">
+    <div className="w-full mb-6 sm:mb-8">
       {/* ── Search Bar ────────────────────────────── */}
       <div className={cn(
-        "flex items-center gap-3 px-4 h-14 bg-card border border-border/60 shadow-sm transition-all duration-300",
+        "flex items-center gap-2 sm:gap-3 px-3 sm:px-4 h-12 sm:h-14 bg-card border border-border/60 shadow-sm transition-all duration-300",
         isExpanded ? "rounded-t-2xl border-b-0" : "rounded-2xl"
       )}>
-        <SearchIcon className="size-5 shrink-0 text-muted-foreground/60" />
+        <SearchIcon className="size-4 sm:size-5 shrink-0 text-muted-foreground/60" />
 
         <Input
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-          placeholder="Buscar por palavra-chave, ID ou nome da prova…"
-          className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0 p-0 h-auto text-[15px] placeholder:text-muted-foreground/50 font-medium"
+          placeholder="Buscar..."
+          className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0 p-0 h-auto text-[14px] sm:text-[15px] placeholder:text-muted-foreground/50 font-medium"
         />
 
-        {/* Active filter chips (inline, max 3) */}
-        <div className="hidden lg:flex items-center gap-2 shrink-0 max-w-xs overflow-hidden">
+        {/* Active filter chips (inline, max 1 on mobile, 3 on desktop) */}
+        <div className="flex items-center gap-2 shrink-0 max-w-[80px] sm:max-w-xs overflow-hidden">
           {Object.entries(selected).flatMap(([gid, vals]) =>
             vals.map((v) => (
               <Badge
                 key={`${gid}-${v}`}
                 variant="secondary"
-                className="gap-1.5 pr-1.5 font-medium text-[12px] rounded-full shrink-0 animate-in fade-in zoom-in duration-200"
+                className="gap-1.5 pr-1.5 font-medium text-[10px] sm:text-[12px] rounded-full shrink-0 animate-in fade-in zoom-in duration-200"
               >
-                {getLabelForValue(gid, v)}
+                <span className="max-w-[40px] sm:max-w-none truncate">{getLabelForValue(gid, v)}</span>
                 <button
                   onClick={() => removeChip(gid, v)}
                   className="opacity-50 hover:opacity-100 transition-opacity"
                 >
-                  <XIcon className="size-2.5" />
+                  <XIcon className="size-2 sm:size-2.5" />
                 </button>
               </Badge>
             ))
-          ).slice(0, 3)}
-          {totalActive > 3 && (
-            <span className="text-[11px] text-muted-foreground font-semibold">+{totalActive - 3}</span>
+          ).slice(0, 1)}
+          {totalActive > 1 && (
+            <span className="text-[10px] sm:text-[11px] text-muted-foreground font-bold">+{totalActive - 1}</span>
           )}
         </div>
 
-        <Separator orientation="vertical" className="h-6 shrink-0" />
+        <Separator orientation="vertical" className="h-5 sm:h-6 shrink-0 mx-1 sm:mx-0" />
 
+        {/* Mobile Filter Button (Sheet) */}
+        <div className="sm:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="flex items-center gap-1.5 rounded-xl px-2 py-1.5 text-[12px] font-bold text-foreground">
+                <SlidersHorizontalIcon className="size-4" />
+                {totalActive > 0 && (
+                  <span className="size-4 rounded-full bg-foreground text-background text-[9px] font-bold flex items-center justify-center">
+                    {totalActive}
+                  </span>
+                )}
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[92vh] rounded-t-[32px] p-0 border-t-0 bg-background">
+              <SheetHeader className="px-6 pt-6 pb-2 text-left">
+                <SheetTitle className="text-2xl font-black italic uppercase tracking-tighter">Filtros</SheetTitle>
+                <SheetDescription className="font-medium">Refine sua busca por questões</SheetDescription>
+              </SheetHeader>
+              <ScrollArea className="h-full px-6 pb-32">
+                <div className="flex flex-col gap-8 py-4">
+                  {/* Status */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60">Status da Questão</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {STATUS_OPTIONS.map(({ value, label, color }) => (
+                        <button
+                          key={value}
+                          onClick={() => setStatus(value)}
+                          className={cn(
+                            "px-4 h-9 rounded-full text-[13px] font-bold border transition-all",
+                            status === value ? cn(color, "border-current shadow-sm") : "bg-muted/40 text-muted-foreground border-transparent"
+                          )}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Groups */}
+                  <div className="space-y-6">
+                    {filterGroups.map((group) => (
+                      <div key={group.id} className="space-y-3">
+                        <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
+                          {group.icon}
+                          {group.label}
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {group.options.slice(0, 12).map((opt) => {
+                            const checked = (selected[group.id] ?? []).includes(opt.value)
+                            return (
+                              <button
+                                key={opt.value}
+                                onClick={() => toggleOption(group.id, opt.value)}
+                                className={cn(
+                                  "px-3 h-8 rounded-lg text-[12px] font-semibold border transition-all",
+                                  checked ? "bg-primary/10 border-primary text-primary" : "bg-muted/30 text-muted-foreground border-transparent"
+                                )}
+                              >
+                                {opt.label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </ScrollArea>
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background via-background to-transparent border-t flex gap-3">
+                <Button variant="outline" className="flex-1 h-12 rounded-2xl font-bold" onClick={clearAll}>Limpar</Button>
+                <Button className="flex-[2] h-12 rounded-2xl font-bold text-base" onClick={applyFilters}>Ver Resultados</Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        {/* Desktop Filter Toggle */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
-            "flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-[13px] font-semibold transition-all duration-200 shrink-0",
+            "hidden sm:flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-[13px] font-semibold transition-all duration-200 shrink-0",
             isExpanded || totalActive > 0
               ? "bg-foreground/10 text-foreground"
               : "text-muted-foreground hover:text-foreground hover:bg-muted"
           )}
         >
           <SlidersHorizontalIcon className="size-4" />
-          <span className="hidden sm:inline">Filtros</span>
+          <span>Filtros</span>
           {totalActive > 0 && (
             <span className="size-5 rounded-full bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
               {totalActive}
@@ -215,17 +304,16 @@ export function QuestionFilters() {
         </button>
       </div>
 
-      {/* ── Expanded Panel ────────────────────────── */}
+      {/* ── Desktop Expanded Panel ────────────────────────── */}
       <div
         className={cn(
-          "transition-all duration-300 ease-in-out bg-card border border-t-0 border-border/60 rounded-b-2xl shadow-sm",
+          "hidden sm:block transition-all duration-300 ease-in-out bg-card border border-t-0 border-border/60 rounded-b-2xl shadow-sm",
           isExpanded
             ? "max-h-[900px] opacity-100 overflow-visible"
             : "max-h-0 opacity-0 pointer-events-none overflow-hidden"
         )}
       >
         <div className="p-5 flex flex-col gap-5">
-
           {/* Status Tabs */}
           <div className="flex flex-wrap gap-2">
             {STATUS_OPTIONS.map(({ value, label, color }) => (
@@ -246,8 +334,8 @@ export function QuestionFilters() {
 
           <Separator />
 
-          {/* Filter Groups */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+          {/* Filter Groups Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
             {filterGroups.map((group) => {
               const groupSelected = selected[group.id] ?? []
               const isOpen = openGroup === group.id
@@ -266,11 +354,11 @@ export function QuestionFilters() {
                         : "bg-muted/40 text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
                     )}
                   >
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-2 truncate">
                       {group.icon}
-                      {group.label}
+                      <span className="truncate">{group.label}</span>
                       {groupSelected.length > 0 && (
-                        <span className="size-4 rounded-full bg-foreground text-background text-[9px] font-bold flex items-center justify-center">
+                        <span className="size-4 rounded-full bg-foreground text-background text-[9px] font-bold flex items-center justify-center shrink-0">
                           {groupSelected.length}
                         </span>
                       )}
@@ -278,10 +366,8 @@ export function QuestionFilters() {
                     <ChevronDownIcon className={cn("size-3.5 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
                   </button>
 
-                  {/* Dropdown Options */}
                   {isOpen && (
-                    <div className="absolute top-[calc(100%+6px)] left-0 z-50 w-56 bg-popover border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                      {/* Search */}
+                    <div className="absolute top-[calc(100%+6px)] left-0 z-50 w-64 bg-popover border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
                       <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border">
                         <SearchIcon className="size-3.5 text-muted-foreground/60 shrink-0" />
                         <input
@@ -292,8 +378,7 @@ export function QuestionFilters() {
                           className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50 text-foreground"
                         />
                       </div>
-                      {/* List */}
-                      <div className="max-h-52 overflow-y-auto py-1">
+                      <div className="max-h-60 overflow-y-auto py-1">
                         {group.options
                           .filter((opt) => opt.label.toLowerCase().includes(dropdownSearch.toLowerCase()))
                           .map((opt) => {
@@ -304,26 +389,18 @@ export function QuestionFilters() {
                               onClick={() => toggleOption(group.id, opt.value)}
                               className="w-full flex items-center gap-3 px-3 py-2 text-[13px] hover:bg-accent transition-colors text-left"
                             >
-                              {/* Checkbox */}
                               <span className={cn(
                                 "size-4 rounded shrink-0 border flex items-center justify-center transition-colors",
-                                checked
-                                  ? "bg-foreground border-foreground"
-                                  : "border-border"
+                                checked ? "bg-foreground border-foreground" : "border-border"
                               )}>
                                 {checked && <CheckIcon className="size-2.5 text-background" />}
                               </span>
-                              <span className={checked ? "text-foreground font-medium" : "text-muted-foreground"}>
+                              <span className={cn("truncate", checked ? "text-foreground font-medium" : "text-muted-foreground")}>
                                 {opt.label}
                               </span>
                             </button>
                           )
                         })}
-                        {group.options.filter((opt) => opt.label.toLowerCase().includes(dropdownSearch.toLowerCase())).length === 0 && (
-                          <div className="px-4 py-3 text-center text-[12px] text-muted-foreground">
-                            Nenhuma opção encontrada.
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}
@@ -332,43 +409,17 @@ export function QuestionFilters() {
             })}
           </div>
 
-          {/* Active Chips Row */}
-          {totalActive > 0 && (
-            <div className="flex flex-wrap items-center gap-2 pt-1 animate-in fade-in slide-in-from-bottom-1 duration-200">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mr-1">Ativos:</span>
-              {Object.entries(selected).flatMap(([gid, vals]) =>
-                vals.map((v) => (
-                  <Badge
-                    key={`${gid}-${v}`}
-                    variant="secondary"
-                    className="gap-1.5 pr-1.5 font-medium text-[12px] rounded-full"
-                  >
-                    {getLabelForValue(gid, v)}
-                    <button
-                      onClick={() => removeChip(gid, v)}
-                      className="opacity-50 hover:opacity-100 transition-opacity"
-                    >
-                      <XIcon className="size-2.5" />
-                    </button>
-                  </Badge>
-                ))
-              )}
-            </div>
-          )}
-
-          {/* Footer */}
           <div className="flex items-center justify-between pt-1 border-t border-border/40">
             <Button
               variant="ghost"
               size="sm"
               onClick={clearAll}
               disabled={totalActive === 0 && !keyword && status === "todas"}
-              className="text-muted-foreground text-[13px] font-semibold hover:text-destructive gap-1.5 disabled:opacity-40"
+              className="text-muted-foreground text-[13px] font-semibold hover:text-destructive gap-1.5"
             >
               <XIcon className="size-3.5" />
               Limpar tudo
             </Button>
-
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"

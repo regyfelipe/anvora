@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 interface PaginationNavProps {
   total: number
@@ -33,18 +34,18 @@ export function PaginationNav({ total, pageSize, currentPage }: PaginationNavPro
         size="sm"
         disabled={currentPage === 0}
         onClick={() => goToPage(currentPage - 1)}
-        className="gap-1 font-semibold"
+        className="gap-1 font-semibold px-2 sm:px-3"
       >
         <ChevronLeftIcon className="size-4" />
-        Anterior
+        <span className="hidden xs:inline">Anterior</span>
       </Button>
 
-      <div className="flex items-center gap-1 mx-4">
+      <div className="flex items-center gap-1 sm:mx-4">
         {Array.from({ length: totalPages }).map((_, i) => {
           // Show only a few pages if too many
-          if (totalPages > 7) {
-            if (i > 0 && i < totalPages - 1 && Math.abs(i - currentPage) > 2) {
-              if (i === 1 || i === totalPages - 2) return <span key={i}>...</span>
+          if (totalPages > 5) {
+            if (i > 0 && i < totalPages - 1 && Math.abs(i - currentPage) > (totalPages > 10 ? 1 : 2)) {
+              if (i === 1 || i === totalPages - 2) return <span key={i} className="px-1 text-muted-foreground">...</span>
               return null
             }
           }
@@ -55,7 +56,10 @@ export function PaginationNav({ total, pageSize, currentPage }: PaginationNavPro
               variant={currentPage === i ? "default" : "ghost"}
               size="sm"
               onClick={() => goToPage(i)}
-              className={currentPage === i ? "pointer-events-none" : ""}
+              className={cn(
+                "h-8 w-8 p-0",
+                currentPage === i ? "pointer-events-none" : ""
+              )}
             >
               {i + 1}
             </Button>
@@ -68,9 +72,9 @@ export function PaginationNav({ total, pageSize, currentPage }: PaginationNavPro
         size="sm"
         disabled={currentPage >= totalPages - 1}
         onClick={() => goToPage(currentPage + 1)}
-        className="gap-1 font-semibold"
+        className="gap-1 font-semibold px-2 sm:px-3"
       >
-        Próxima
+        <span className="hidden xs:inline">Próxima</span>
         <ChevronRightIcon className="size-4" />
       </Button>
     </div>
