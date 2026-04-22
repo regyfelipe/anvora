@@ -21,6 +21,9 @@
 # misc
 .DS_Store
 *.pem
+*.db
+*.sqlite
+*.sqlite-journal
 
 # debug
 npm-debug.log*
@@ -29,8 +32,33 @@ yarn-error.log*
 pnpm-debug.log*
 
 # env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env*.local
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma
+/generated/prisma
+/prisma/*.db
+/prisma/*.sqlite
+
+# ide
+.vscode/
+.idea/
+
+# agent
+.gemini/
+scratch/
+brain/
+logs/
+plan/
+walkthrough/
+task/
+implementation_plan/
+*.md.tmp

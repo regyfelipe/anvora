@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id              String            @id @default(cuid())
+  name            String
+  email           String            @unique
+  passwordHash    String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  teacherProfile  TeacherProfile?
+  studentProfile  StudentProfile?
+  memberships     ContextMembership[]
+}
+
+model Institution {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  logoUrl     String?
+  createdAt   DateTime  @default(now())
+
+  memberships ContextMembership[]
+}
+
+model TeacherProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  bio       String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StudentProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ContextMembership {
+  id            String      @id @default(cuid())
+  userId        String
+  institutionId String
+  role          String      // e.g., "ADMIN", "TEACHER", "STUDENT"
+  createdAt     DateTime    @default(now())
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, institutionId])
+}
