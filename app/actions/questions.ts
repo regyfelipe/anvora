@@ -241,22 +241,47 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData | 
     : rawCareer
   const questionTarget = profile?.daily_questions_target || 40
 
-  // 2. Calcular fraqueza (pior taxa de acerto por matéria)
-  const bySubject: Record<string, { correct: number, total: number }> = {}
+  // 2. Calcular fraqueza (pior taxa de acerto por tópico com min 3 questões)
+  const byTopic: Record<string, { correct: number, total: number, subject: string }> = {}
   answers?.forEach(a => {
-    const s = (a as any).questions?.subject || "Geral"
-    if (!bySubject[s]) bySubject[s] = { correct: 0, total: 0 }
-    bySubject[s].total++
-    if (a.is_correct) bySubject[s].correct++
+    const q = (a as any).questions
+    const s = q?.subject || "Geral"
+    const t = q?.topic || "Geral"
+    const key = `${s}|${t}`
+    
+    if (!byTopic[key]) byTopic[key] = { correct: 0, total: 0, subject: s }
+    byTopic[key].total++
+    if (a.is_correct) byTopic[key].correct++
   })
 
-  let weakness = { subject: "Nenhuma matéria", scorePct: 100 }
-  Object.entries(bySubject).forEach(([name, stats]) => {
-    const pct = Math.round((stats.correct / stats.total) * 100)
-    if (pct < weakness.scorePct) {
-      weakness = { subject: name, scorePct: pct }
+  let weakness = { subject: "Nenhuma matéria", topic: "Geral", scorePct: 100 }
+  
+  // Encontrar o tópico com pior desempenho (mínimo 3 questões para ser relevante)
+  const topicStats = Object.entries(byTopic)
+    .map(([key, stats]) => ({
+      subject: stats.subject,
+      topic: key.split('|')[1],
+      scorePct: Math.round((stats.correct / stats.total) * 100),
+      total: stats.total
+    }))
+    .filter(t => t.total >= 3)
+    .sort((a, b) => a.scorePct - b.scorePct)
+
+  if (topicStats.length > 0) {
+    weakness = { 
+      subject: topicStats[0].subject, 
+      topic: topicStats[0].topic,
+      scorePct: topicStats[0].scorePct 
     }
-  })
+  } else {
+    // Fallback para qualquer matéria se não houver tópicos com 3+ questões
+    Object.entries(byTopic).forEach(([key, stats]) => {
+      const pct = Math.round((stats.correct / stats.total) * 100)
+      if (pct < weakness.scorePct) {
+        weakness = { subject: stats.subject, topic: key.split('|')[1], scorePct: pct }
+      }
+    })
+  }
 
   // 3. Montar objeto final
   return {
@@ -289,6 +314,7 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData | 
     ],
     weakness: {
       subject: weakness.subject,
+      topic: weakness.topic,
       scorePct: weakness.scorePct,
       actionHref: "/dashboard/questoes",
     }
@@ -548,5 +574,75 @@ export async function deleteStudyPlan() {
   }
 
   revalidatePath('/aluno/planejamento')
+  return { success: true }
+}
+
+export async function saveUserFilter(data: {
+  name: string
+  keyword: string
+  status: string
+  selected: any
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { success: false, error: "Não autenticado" }
+
+  const { data: savedFilter, error } = await supabase
+    .from('saved_filters')
+    .insert({
+      user_id: user.id,
+      name: data.name,
+      keyword: data.keyword,
+      status: data.status,
+      selected: data.selected
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error("Erro ao salvar filtro no banco:", error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard/questoes')
+  return { success: true, data: savedFilter }
+}
+
+export async function getUserFilters() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return []
+
+  const { data, error } = await supabase
+    .from('saved_filters')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error("Erro ao buscar filtros salvos:", error)
+    return []
+  }
+
+  return data
+}
+
+export async function deleteUserFilter(id: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { success: false }
+
+  const { error } = await supabase
+    .from('saved_filters')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { success: false, error: error.message }
+  
+  revalidatePath('/dashboard/questoes')
   return { success: true }
 }

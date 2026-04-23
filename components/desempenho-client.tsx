@@ -22,6 +22,7 @@ import {
   ZapIcon,
   TrophyIcon,
   TimerIcon,
+  AlertTriangleIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PerformanceStats } from "@/app/actions/performance"
@@ -230,8 +231,9 @@ export function DesempenhoClient({ data }: DesempenhoClientProps) {
         </CardContent>
       </Card>
       
-      {/* ── Subject Performance ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* ── Subject & Weakness Analysis ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Top Disciplinas */}
         <Card className="rounded-3xl border-border/50 shadow-sm">
           <CardHeader>
             <CardTitle className="text-sm font-black uppercase tracking-widest text-muted-foreground/70">Top Disciplinas</CardTitle>
@@ -240,24 +242,67 @@ export function DesempenhoClient({ data }: DesempenhoClientProps) {
             {data.subjectPerformance.map((item) => (
               <div key={item.subject} className="space-y-1.5">
                 <div className="flex justify-between text-xs font-bold">
-                  <span className="truncate max-w-[200px]">{item.subject}</span>
+                  <span className="truncate max-w-[150px]">{item.subject}</span>
                   <span>{item.accuracy}%</span>
                 </div>
-                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-primary rounded-full transition-all duration-1000"
                     style={{ width: `${item.accuracy}%` }}
                   />
                 </div>
-                <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">
-                  {item.total} questões
+                <div className="flex justify-between text-[9px] text-muted-foreground font-bold uppercase tracking-tight">
+                  <span>{item.total} questões</span>
+                  <span className={item.accuracy >= 70 ? "text-emerald-500" : item.accuracy >= 50 ? "text-amber-500" : "text-destructive"}>
+                    {item.accuracy >= 70 ? "ÓTIMO" : item.accuracy >= 50 ? "REGULAR" : "CRÍTICO"}
+                  </span>
                 </div>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        <Card className="rounded-3xl border-border/50 shadow-sm bg-primary/5 border-primary/20 flex flex-col justify-center items-center p-8 text-center">
+        {/* Assuntos com Dificuldade */}
+        <Card className="rounded-3xl border-border/50 shadow-sm bg-destructive/5 border-destructive/10">
+          <CardHeader>
+            <CardTitle className="text-sm font-black uppercase tracking-widest text-destructive/80 flex items-center gap-2">
+              <AlertTriangleIcon className="size-4" />
+              Atenção: Pontos Fracos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {data.weakestTopics.length > 0 ? (
+              data.weakestTopics.map((item) => (
+                <div key={item.topic} className="p-3 rounded-2xl bg-background/50 border border-destructive/5 space-y-2">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="space-y-0.5">
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">{item.subject}</p>
+                      <h5 className="text-[13px] font-bold leading-tight">{item.topic}</h5>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-black text-destructive italic tracking-tighter">{item.accuracy}%</p>
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase">{item.total} Q</p>
+                    </div>
+                  </div>
+                  <div className="h-1 w-full bg-destructive/10 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-destructive rounded-full"
+                      style={{ width: `${item.accuracy}%` }}
+                    />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center py-10 opacity-40">
+                <TargetIcon className="size-8 mb-2" />
+                <p className="text-xs font-bold uppercase tracking-widest">Sem alertas ainda</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Meta Semanal */}
+        <Card className="rounded-3xl border-border/50 shadow-sm bg-primary/5 border-primary/20 flex flex-col justify-center items-center p-8 text-center h-full">
           <TrophyIcon className="size-12 text-primary mb-4" />
           <h3 className="text-xl font-black italic uppercase tracking-tighter mb-2">Meta Semanal</h3>
           <p className="text-sm text-muted-foreground font-medium mb-6">

@@ -28,6 +28,7 @@ export default async function FeedQuestoesPage({
     nivel: typeof params.nivel === 'string' ? params.nivel.split(',') : undefined,
     search: typeof params.search === 'string' ? params.search : undefined,
     filter: typeof params.filter === 'string' ? params.filter : undefined,
+    sort: typeof params.sort === 'string' ? params.sort : undefined,
     page: currentPage,
     pageSize: pageSize,
   }

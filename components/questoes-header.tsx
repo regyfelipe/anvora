@@ -166,7 +166,15 @@ export function QuestoesHeader({ count, role = "student" }: { count?: number; ro
 
         <div className="flex items-center gap-1.5 shrink-0">
           <span className="text-[13px] text-muted-foreground font-medium whitespace-nowrap hidden lg:inline">Ordenar por:</span>
-          <Select defaultValue="relevancia">
+          <Select 
+            defaultValue={searchParams.get("sort") || "recente"}
+            onValueChange={(val) => {
+              const params = new URLSearchParams(searchParams)
+              params.set("sort", val)
+              params.set("page", "0") // Reset to first page
+              router.push(`${pathname}?${params.toString()}`)
+            }}
+          >
             <SelectTrigger className="h-8 w-32 sm:w-36 rounded-lg text-[13px] font-medium border-border/60 bg-background shadow-none shrink-0">
               <SelectValue />
             </SelectTrigger>

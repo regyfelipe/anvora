@@ -261,3 +261,21 @@ export async function resetProfessorPasswordAction(professorId: string) {
     } 
   }
 }
+
+export async function deleteAccountAction() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { success: false, error: "Usuário não encontrado" }
+
+  // Deletar via Admin SDK (usando o admin importado no arquivo)
+  const { error } = await admin.auth.admin.deleteUser(user.id)
+
+  if (error) {
+    console.error("Erro ao deletar conta:", error)
+    return { success: false, error: error.message }
+  }
+
+  await supabase.auth.signOut()
+  return { success: true }
+}

@@ -12,6 +12,7 @@ export interface QuestionFilters {
   page?: number
   pageSize?: number
   filter?: string // 'mine' para ver apenas as do usuário logado
+  sort?: string
 }
 
 export async function getFilterOptions() {
@@ -20,27 +21,54 @@ export async function getFilterOptions() {
   // Buscamos os valores únicos presentes no banco
   const [
     { data: subjects },
-    { data: topics },
+    { data: topicsData },
     { data: boards },
     { data: careers },
     { data: years },
   ] = await Promise.all([
     supabase.from('questions').select('subject').eq('is_active', true),
-    supabase.from('questions').select('topic').eq('is_active', true),
+    supabase.from('questions').select('subject, topic').eq('is_active', true),
     supabase.from('questions').select('board_name').eq('is_active', true),
     supabase.from('questions').select('career').eq('is_active', true),
     supabase.from('questions').select('exam_year').eq('is_active', true),
   ])
 
+  // Auxiliar para normalizar texto (Primeira letra maiúscula, resto minúsculo)
+  const normalize = (text: string) => {
+    if (!text) return ""
+    const lower = text.trim().toLowerCase()
+    return lower.charAt(0).toUpperCase() + lower.slice(1)
+  }
+
   // Processamos para remover duplicatas e formatar
-  const getUnique = (arr: any[], key: string) => 
-    Array.from(new Set(arr?.map(item => item[key]).filter(Boolean)))
+  const getUnique = (arr: any[], key: string) => {
+    const normalized = arr?.map(item => normalize(String(item[key]))).filter(Boolean)
+    return Array.from(new Set(normalized))
       .sort()
       .map(val => ({ value: String(val), label: String(val) }))
+  }
+
+  // Processar tópicos com relação à disciplina
+  const uniqueTopicsMap = new Map<string, { topic: string, subject: string }>()
+  
+  topicsData?.forEach(t => {
+    if (!t.topic || !t.subject) return
+    const normTopic = normalize(t.topic)
+    const normSubject = normalize(t.subject)
+    const key = `${normTopic}|${normSubject}`
+    
+    if (!uniqueTopicsMap.has(key)) {
+      uniqueTopicsMap.set(key, { topic: normTopic, subject: normSubject })
+    }
+  })
+
+  const uniqueTopics = Array.from(uniqueTopicsMap.values())
+    .sort((a, b) => a.topic.localeCompare(b.topic))
+    .map(t => ({ value: t.topic, label: t.topic, subject: t.subject }))
 
   return {
     disciplina: getUnique(subjects || [], 'subject'),
-    assunto: getUnique(topics || [], 'topic'),
+    assunto: uniqueTopics,
     banca: getUnique(boards || [], 'board_name'),
     carreira: getUnique(careers || [], 'career'),
     ano: getUnique(years || [], 'exam_year'),
@@ -76,8 +104,14 @@ export async function getQuestions(filters?: QuestionFilters): Promise<{ questio
       .eq('is_active', true)
 
     if (filters) {
-      if (filters.disciplina?.length) query = query.in('subject', filters.disciplina)
-      if (filters.assunto?.length) query = query.in('topic', filters.assunto)
+      if (filters.disciplina?.length) {
+        const orFilter = filters.disciplina.map(d => `subject.ilike.${d}`).join(',')
+        query = query.or(orFilter)
+      }
+      if (filters.assunto?.length) {
+        const orFilter = filters.assunto.map(a => `topic.ilike.${a}`).join(',')
+        query = query.or(orFilter)
+      }
       if (filters.banca?.length) query = query.in('board_name', filters.banca)
       if (filters.carreira?.length) query = query.in('career', filters.carreira)
       if (filters.ano?.length) query = query.in('exam_year', filters.ano)
@@ -89,14 +123,29 @@ export async function getQuestions(filters?: QuestionFilters): Promise<{ questio
         query = query.eq('created_by', user.id)
       }
 
+      // Dynamic Sorting
+      const sort = filters.sort || "recente"
+      if (sort === "recente") {
+        query = query.order('created_at', { ascending: false })
+      } else if (sort === "antiga") {
+        query = query.order('created_at', { ascending: true })
+      } else if (sort === "dificuldade") {
+        query = query.order('difficulty', { ascending: false })
+      } else {
+        // Relevância (default) ou qualquer outro
+        query = query.order('created_at', { ascending: false })
+      }
+
       if (filters.page !== undefined && filters.pageSize !== undefined) {
         const from = filters.page * filters.pageSize
         const to = from + filters.pageSize - 1
         query = query.range(from, to)
       }
+    } else {
+      query = query.order('created_at', { ascending: false })
     }
 
-    const { data: questions, error: qError, count } = await query.order('created_at', { ascending: false })
+    const { data: questions, error: qError, count } = await query
 
     if (qError) {
       console.error("Supabase Error:", qError.message)

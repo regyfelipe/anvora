@@ -17,10 +17,7 @@ import {
   CommandIcon,
   LayoutDashboardIcon,
   HelpCircleIcon,
-  LayersIcon,
-  ClipboardCheckIcon,
   BookMarkedIcon,
-  CalendarDaysIcon,
   BarChart2Icon,
   SettingsIcon,
   PlusIcon,
@@ -42,29 +39,19 @@ export const alunoNavItems = [
     icon: <HelpCircleIcon />,
   },
   {
-    title: "Flashcards",
-    url: "/aluno/flashcards",
-    icon: <LayersIcon />,
-  },
-  {
-    title: "Simulados",
-    url: "/aluno/simulados",
-    icon: <ClipboardCheckIcon />,
-  },
-  {
     title: "Caderno",
     url: "/aluno/caderno",
     icon: <BookMarkedIcon />,
   },
   {
-    title: "Planejamento",
-    url: "/aluno/planejamento",
-    icon: <CalendarDaysIcon />,
-  },
-  {
     title: "Desempenho",
     url: "/aluno/desempenho",
     icon: <BarChart2Icon />,
+  },
+  {
+    title: "Perfil",
+    url: "/aluno/perfil",
+    icon: <UserIcon />,
   },
 ]
 

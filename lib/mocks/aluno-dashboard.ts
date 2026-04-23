@@ -35,6 +35,7 @@ export type StudentDashboardData = {
   }>;
   weakness: {
     subject: string;
+    topic?: string;
     scorePct: number;
     actionHref: string;
   };

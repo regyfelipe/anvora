@@ -20,7 +20,12 @@ export function AlunoWeaknessCard({ data, className }: Props) {
           <TrendingDownIcon className="size-8 text-red-500" />
         </div>
         
-        <h4 className="font-extrabold text-lg mb-1">{data.subject}</h4>
+        <h4 className="font-extrabold text-lg mb-0.5">{data.subject}</h4>
+        {data.topic && (
+          <p className="text-[10px] font-black text-red-500/80 uppercase tracking-widest mb-2 italic">
+            Assunto: {data.topic}
+          </p>
+        )}
         <p className="text-sm text-muted-foreground max-w-[200px] mb-6">
           Sua taxa de acerto está em <strong className="text-foreground">{data.scorePct}%</strong>. Recomendamos um treino focado.
         </p>
