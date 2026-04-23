@@ -101,21 +101,52 @@ export function QuestionCard({ data, isPreview = false }: QuestionCardProps) {
     <div className="flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300">
 
       {/* ── Top Header ────────────────────────────── */}
-      <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-muted/40 rounded-t-xl overflow-x-auto whitespace-nowrap scrollbar-none">
-        <span className="text-xs sm:text-sm font-semibold text-muted-foreground min-w-4">{data.index}</span>
-        <Badge variant="secondary" className="rounded-md font-mono text-[10px] sm:text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-200">
+      {/* Mobile Version (Ajustada) */}
+      <div className="sm:hidden flex flex-col gap-2 px-4 py-2.5 bg-muted/40 rounded-t-xl border-b border-border/10">
+        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
+          <span className="text-xs font-bold text-muted-foreground min-w-4">{data.index}</span>
+          <Badge variant="secondary" className="rounded-md font-mono text-[10px] bg-slate-200 dark:bg-slate-700">
+            {data.publicCode}
+          </Badge>
+          {getSourceBadge()}
+          {getDifficultyBadge()}
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center text-[11px] text-muted-foreground">
+            <span className="truncate max-w-[120px] font-bold text-foreground/80">{data.subject}</span>
+            <ChevronRightIcon className="mx-1 size-3 opacity-50" />
+            <span className="truncate max-w-[120px]">{data.topic}</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {data.userState?.isFavorited && <StarIcon className="size-3.5 text-amber-400 fill-amber-400" />}
+            {previousAttempt != null && (
+              <div className={cn(
+                "flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full",
+                previousAttempt.isCorrect ? "bg-green-500/10 text-green-700" : "bg-red-500/10 text-red-700"
+              )}>
+                {previousAttempt.isCorrect ? <CheckCircle2Icon className="size-2.5" /> : <XCircleIcon className="size-2.5" />}
+                <span>{previousAttempt.isCorrect ? "Acertou" : "Errou"}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop/Tablet Version (ORIGINAL - NÃO TOCAR) */}
+      <div className="hidden sm:flex items-center gap-3 px-6 py-3 bg-muted/40 rounded-t-xl overflow-x-auto whitespace-nowrap scrollbar-none">
+        <span className="text-sm font-semibold text-muted-foreground min-w-4">{data.index}</span>
+        <Badge variant="secondary" className="rounded-md font-mono text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-200">
           {data.publicCode}
         </Badge>
         {getSourceBadge()}
         {getDifficultyBadge()}
 
-        <div className="flex items-center text-[12px] sm:text-sm text-muted-foreground ml-1 sm:ml-2">
-          <span className="truncate max-w-[100px] sm:max-w-none">{data.subject}</span>
-          <ChevronRightIcon className="mx-1 sm:mx-2 size-3 sm:size-3.5 opacity-50" />
-          <span className="truncate max-w-[100px] sm:max-w-none">{data.topic}</span>
+        <div className="flex items-center text-sm text-muted-foreground ml-2">
+          <span className="truncate max-w-none">{data.subject}</span>
+          <ChevronRightIcon className="mx-2 size-3.5 opacity-50" />
+          <span className="truncate max-w-none">{data.topic}</span>
         </div>
 
-        {/* Right: community stats + user state */}
         <div className="ml-auto flex items-center gap-2 shrink-0">
           {data.userState?.isFavorited && (
             <StarIcon className="size-3.5 text-amber-400 fill-amber-400" />
@@ -144,11 +175,21 @@ export function QuestionCard({ data, isPreview = false }: QuestionCardProps) {
       </div>
 
       {/* ── Meta Row ──────────────────────────────── */}
-      <div className="px-4 sm:px-6 py-2 sm:py-3 border-b bg-background flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-1 sm:gap-y-2 text-[12px] sm:text-sm text-muted-foreground">
+      {/* Mobile Version (Ajustada) */}
+      <div className="sm:hidden px-4 py-2 border-b bg-background flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+        <p><span className="font-bold text-foreground">Ano:</span> {data.year}</p>
+        <p><span className="font-bold text-foreground">Banca:</span> {data.board}</p>
+        <p className="hover:underline cursor-pointer text-primary/80 truncate max-w-[160px]">
+          <span className="font-bold text-foreground mr-1">Prova:</span>{data.exam}
+        </p>
+      </div>
+
+      {/* Desktop/Tablet Version (ORIGINAL - NÃO TOCAR) */}
+      <div className="hidden sm:flex px-6 py-3 border-b bg-background flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
         <p><span className="font-medium text-foreground">Ano:</span> {data.year}</p>
         <p><span className="font-medium text-foreground">Banca:</span> {data.board}</p>
-        <p className="hidden sm:block"><span className="font-medium text-foreground">Órgão:</span> {data.institution}</p>
-        <p className="hover:underline cursor-pointer text-primary/80 truncate max-w-[200px] sm:max-w-none">
+        <p><span className="font-medium text-foreground">Órgão:</span> {data.institution}</p>
+        <p className="hover:underline cursor-pointer text-primary/80 truncate max-w-none">
           <span className="font-medium text-foreground mr-1">Prova:</span>{data.exam}
         </p>
       </div>
@@ -259,10 +300,10 @@ export function QuestionCard({ data, isPreview = false }: QuestionCardProps) {
 
       {/* ── Footer Toolbar ────────────────────────── */}
       <div className={cn(
-        "px-4 py-2 flex flex-wrap items-center gap-1 sm:gap-2 text-[13px] bg-muted/10",
+        "px-2 sm:px-4 py-2 flex items-center gap-1 sm:gap-2 text-[13px] bg-muted/10",
         !(showExplanation && data.explanation) && "rounded-b-xl"
       )}>
-        {/* Gabarito Comentado — bloqueado antes de responder */}
+        {/* Gabarito Comentado — Principal */}
         <div className="group relative">
           <Button
             variant="ghost"
@@ -270,39 +311,44 @@ export function QuestionCard({ data, isPreview = false }: QuestionCardProps) {
             disabled={!isAnswered}
             onClick={() => setShowExplanation(!showExplanation)}
             className={cn(
-              "h-8 hover:bg-transparent px-2 sm:px-3",
+              "h-8 hover:bg-transparent px-2 sm:px-3 gap-1.5",
               showExplanation ? "text-primary font-bold bg-primary/5" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <MessageSquareIcon className={cn("mr-1.5 size-4", showExplanation && "fill-primary/20 text-primary")} />
-            Gabarito Comentado
+            <MessageSquareIcon className={cn("size-4", showExplanation && "fill-primary/20 text-primary")} />
+            <span className="text-[11px] sm:text-[13px]">Gabarito</span>
           </Button>
           {!isAnswered && (
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 hidden group-hover:block bg-foreground text-background text-xs font-bold px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap z-50 animate-in fade-in zoom-in-95 duration-200">
-              Responda primeiro para liberar o comentário
+              Responda para liberar
               <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 size-2 bg-foreground rotate-45" />
             </div>
           )}
         </div>
 
-        <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-foreground hover:bg-transparent px-2 sm:px-3 hidden sm:flex">
-          <BookOpenIcon className="mr-1.5 size-4" />
-          Comentários <span className="ml-1 opacity-50 text-[10px]">(12)</span>
+        {/* Mobile Icons / Desktop Text Buttons */}
+        <Button variant="ghost" size="sm" className="h-8 w-8 sm:w-auto p-0 sm:px-3 text-muted-foreground hover:text-foreground hover:bg-transparent gap-1.5">
+          <BookOpenIcon className="size-4" />
+          <span className="hidden sm:inline">Comentários</span>
+          <span className="hidden sm:inline opacity-50 text-[10px]">(12)</span>
         </Button>
-        <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-foreground hover:bg-transparent px-2 sm:px-3 hidden md:flex">
-          <FolderPlusIcon className="mr-1.5 size-4" />
-          Adicionar ao Caderno
+        
+        <Button variant="ghost" size="sm" className="h-8 w-8 sm:w-auto p-0 sm:px-3 text-muted-foreground hover:text-foreground hover:bg-transparent gap-1.5">
+          <FolderPlusIcon className="size-4" />
+          <span className="hidden sm:inline">Caderno</span>
         </Button>
-        <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-foreground hover:bg-transparent px-2 sm:px-3 hidden lg:flex">
-          <BarChartIcon className="mr-1.5 size-4" />
-          Estatísticas
+
+        <Button variant="ghost" size="sm" className="h-8 w-8 sm:w-auto p-0 sm:px-3 text-muted-foreground hover:text-foreground hover:bg-transparent gap-1.5">
+          <BarChartIcon className="size-4" />
+          <span className="hidden sm:inline">Estatísticas</span>
         </Button>
 
         <div className="ml-auto flex items-center gap-1">
-          <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-destructive hover:bg-transparent px-2 hidden sm:flex">
-            <FlagIcon className="mr-1.5 size-4" />
+          <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-destructive hover:bg-transparent px-2 hidden sm:flex gap-1.5">
+            <FlagIcon className="size-4" />
             Notificar Erro
           </Button>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted">
@@ -311,9 +357,6 @@ export function QuestionCard({ data, isPreview = false }: QuestionCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52 font-medium">
-              <DropdownMenuItem className="sm:hidden"><BookOpenIcon className="mr-2 size-4" /> Comentários</DropdownMenuItem>
-              <DropdownMenuItem className="md:hidden"><FolderPlusIcon className="mr-2 size-4" /> Cadernos</DropdownMenuItem>
-              <DropdownMenuItem className="lg:hidden"><BarChartIcon className="mr-2 size-4" /> Estatísticas</DropdownMenuItem>
               <DropdownMenuItem><PenLineIcon className="mr-2 size-4" /> Aulas e Vídeos</DropdownMenuItem>
               <DropdownMenuItem><BookOpenIcon className="mr-2 size-4" /> Minhas Anotações</DropdownMenuItem>
               <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive sm:hidden">

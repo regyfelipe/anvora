@@ -413,7 +413,7 @@ export async function createEditorialQuestion(values: any) {
       .from('questions')
       .insert({
         public_code: publicCode,
-        exam_name: values.meta.examName || "Anvora Editorial",
+        exam_name: values.meta.examName || "Quero Passar Editorial",
         exam_slug: examSlug,
         subject: values.meta.subject,
         topic: values.meta.topic,

@@ -1,6 +1,4 @@
-# Anvora - Plataforma Educacional SaaS
-
-Plataforma de Questões, Flashcards e Planejamento para Professores e Instituições.
+# Quero Passar - Plataforma de Questões para Concursos e Planejamento para Professores e Instituições.
 
 ## 🚀 Visão do Produto
 
@@ -128,4 +126,4 @@ Criar um ecossistema educacional completo onde professores autônomos e institui
 - `/professor/alunos`: Gestão de mentorados.
 
 ---
-© 2026 Anvora - Todos os direitos reservados.
+© 2026 Quero Passar - Todos os direitos reservados.

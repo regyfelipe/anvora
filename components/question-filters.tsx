@@ -25,14 +25,21 @@ import { cn } from "@/lib/utils"
 import { fetchFilterOptions } from "@/app/actions/questions"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  DrawerClose,
+} from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 /* ─── Types ──────────────────────────────────── */
 interface FilterOption {
@@ -49,17 +56,17 @@ interface FilterGroup {
 
 /* ─── Static Data ────────────────────────────── */
 const STATUS_OPTIONS = [
-  { value: "todas",          label: "Todas",          color: "bg-muted text-muted-foreground" },
+  { value: "todas", label: "Todas", color: "bg-muted text-muted-foreground" },
   { value: "nao-resolvidas", label: "Não resolvidas", color: "bg-muted text-muted-foreground" },
-  { value: "acertei",        label: "Acertei",        color: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" },
-  { value: "errei",          label: "Errei",          color: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30" },
+  { value: "acertei", label: "Acertei", color: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" },
+  { value: "errei", label: "Errei", color: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30" },
 ]
 
 const CONTEUDO_OPTIONS = [
-  { value: "gabarito",    label: "Com gabarito" },
+  { value: "gabarito", label: "Com gabarito" },
   { value: "comentarios", label: "Com comentários" },
-  { value: "aulas",       label: "Com aulas" },
-  { value: "anotacoes",   label: "Minhas anotações" },
+  { value: "aulas", label: "Com aulas" },
+  { value: "anotacoes", label: "Minhas anotações" },
 ]
 
 /* ─── Component ──────────────────────────────── */
@@ -67,22 +74,23 @@ export function QuestionFilters() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  
+
   const [filterGroups, setFilterGroups] = React.useState<FilterGroup[]>([
     { id: "disciplina", icon: <BookOpenIcon className="size-3.5" />, label: "Disciplina", options: [] },
-    { id: "assunto",    icon: <ListTreeIcon className="size-3.5" />, label: "Assunto", options: [] },
-    { id: "banca",      icon: <Building2Icon className="size-3.5" />, label: "Banca", options: [] },
-    { id: "carreira",   icon: <TargetIcon className="size-3.5" />, label: "Carreira", options: [] },
-    { id: "ano",        icon: <CalendarIcon className="size-3.5" />, label: "Ano", options: [] },
-    { id: "nivel",      icon: <BarChart2Icon className="size-3.5" />, label: "Dificuldade", options: [] },
-    { id: "conteudo",   icon: <LayersIcon className="size-3.5" />, label: "Conteúdo", options: CONTEUDO_OPTIONS },
+    { id: "assunto", icon: <ListTreeIcon className="size-3.5" />, label: "Assunto", options: [] },
+    { id: "banca", icon: <Building2Icon className="size-3.5" />, label: "Banca", options: [] },
+    { id: "carreira", icon: <TargetIcon className="size-3.5" />, label: "Carreira", options: [] },
+    { id: "ano", icon: <CalendarIcon className="size-3.5" />, label: "Ano", options: [] },
+    { id: "nivel", icon: <BarChart2Icon className="size-3.5" />, label: "Dificuldade", options: [] },
+    { id: "conteudo", icon: <LayersIcon className="size-3.5" />, label: "Conteúdo", options: CONTEUDO_OPTIONS },
   ])
 
-  const [keyword, setKeyword]             = React.useState(searchParams.get("search") || "")
-  const [status, setStatus]               = React.useState(searchParams.get("status") || "todas")
-  const [isExpanded, setIsExpanded]       = React.useState(false)
-  const [openGroup, setOpenGroup]         = React.useState<string | null>(null)
-  const [selected, setSelected]           = React.useState<Record<string, string[]>>(() => {
+  const [keyword, setKeyword] = React.useState(searchParams.get("search") || "")
+  const [status, setStatus] = React.useState(searchParams.get("status") || "todas")
+  const [isExpanded, setIsExpanded] = React.useState(false)
+  const [isMobileOpen, setIsMobileOpen] = React.useState(false)
+  const [openGroup, setOpenGroup] = React.useState<string | null>(null)
+  const [selected, setSelected] = React.useState<Record<string, string[]>>(() => {
     const initial: Record<string, string[]> = {}
     searchParams.forEach((value, key) => {
       if (["disciplina", "assunto", "banca", "carreira", "ano", "nivel", "conteudo"].includes(key)) {
@@ -99,12 +107,12 @@ export function QuestionFilters() {
       const options = await fetchFilterOptions()
       setFilterGroups([
         { id: "disciplina", icon: <BookOpenIcon className="size-3.5" />, label: "Disciplina", options: options.disciplina },
-        { id: "assunto",    icon: <ListTreeIcon className="size-3.5" />, label: "Assunto", options: options.assunto },
-        { id: "banca",      icon: <Building2Icon className="size-3.5" />, label: "Banca", options: options.banca },
-        { id: "carreira",   icon: <TargetIcon className="size-3.5" />, label: "Carreira", options: options.carreira },
-        { id: "ano",        icon: <CalendarIcon className="size-3.5" />, label: "Ano", options: options.ano },
-        { id: "nivel",      icon: <BarChart2Icon className="size-3.5" />, label: "Dificuldade", options: options.nivel },
-        { id: "conteudo",   icon: <LayersIcon className="size-3.5" />, label: "Conteúdo", options: CONTEUDO_OPTIONS },
+        { id: "assunto", icon: <ListTreeIcon className="size-3.5" />, label: "Assunto", options: options.assunto },
+        { id: "banca", icon: <Building2Icon className="size-3.5" />, label: "Banca", options: options.banca },
+        { id: "carreira", icon: <TargetIcon className="size-3.5" />, label: "Carreira", options: options.carreira },
+        { id: "ano", icon: <CalendarIcon className="size-3.5" />, label: "Ano", options: options.ano },
+        { id: "nivel", icon: <BarChart2Icon className="size-3.5" />, label: "Dificuldade", options: options.nivel },
+        { id: "conteudo", icon: <LayersIcon className="size-3.5" />, label: "Conteúdo", options: CONTEUDO_OPTIONS },
       ])
     }
     loadOptions()
@@ -116,7 +124,7 @@ export function QuestionFilters() {
     const params = new URLSearchParams()
     if (keyword) params.set("search", keyword)
     if (status !== "todas") params.set("status", status)
-    
+
     Object.entries(selected).forEach(([key, values]) => {
       if (values.length > 0) {
         params.set(key, values.join(","))
@@ -125,12 +133,13 @@ export function QuestionFilters() {
 
     router.push(`${pathname}?${params.toString()}`)
     setIsExpanded(false)
+    setIsMobileOpen(false)
   }
 
   const toggleOption = (groupId: string, value: string) => {
     setSelected((prev) => {
       const current = prev[groupId] ?? []
-      const exists  = current.includes(value)
+      const exists = current.includes(value)
       return {
         ...prev,
         [groupId]: exists ? current.filter((v) => v !== value) : [...current, value],
@@ -154,8 +163,8 @@ export function QuestionFilters() {
   const clearAll = () => {
     setSelected({})
     setKeyword("")
-    setStatus("todas")
     router.push(pathname)
+    setIsMobileOpen(false)
   }
 
   const getLabelForValue = (groupId: string, value: string) =>
@@ -206,8 +215,8 @@ export function QuestionFilters() {
 
         {/* Mobile Filter Button (Sheet) */}
         <div className="sm:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
+          <Drawer open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+            <DrawerTrigger asChild>
               <button className="flex items-center gap-1.5 rounded-xl px-2 py-1.5 text-[12px] font-bold text-foreground">
                 <SlidersHorizontalIcon className="size-4" />
                 {totalActive > 0 && (
@@ -216,14 +225,22 @@ export function QuestionFilters() {
                   </span>
                 )}
               </button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="h-[92vh] rounded-t-[32px] p-0 border-t-0 bg-background">
-              <SheetHeader className="px-6 pt-6 pb-2 text-left">
-                <SheetTitle className="text-2xl font-black italic uppercase tracking-tighter">Filtros</SheetTitle>
-                <SheetDescription className="font-medium">Refine sua busca por questões</SheetDescription>
-              </SheetHeader>
-              <ScrollArea className="h-full px-6 pb-32">
-                <div className="flex flex-col gap-8 py-4">
+            </DrawerTrigger>
+            <DrawerContent className="h-[85vh] max-h-[85vh] p-0 bg-card border-x-0 border-b-0 border-t border-border/60 rounded-t-[32px] before:hidden shadow-[0_-8px_30px_rgb(0,0,0,0.12)] flex flex-col overflow-hidden">
+              <DrawerHeader className="px-6 pt-2 pb-4 text-left flex flex-row items-center justify-between border-b border-border/40 shrink-0">
+                <div className="space-y-0.5">
+                  <DrawerTitle className="text-xl font-black italic uppercase tracking-tighter text-foreground">Filtros</DrawerTitle>
+                  <DrawerDescription className="text-xs font-medium text-muted-foreground/80">Refine sua busca por questões</DrawerDescription>
+                </div>
+                <DrawerClose asChild>
+                  <Button variant="ghost" size="icon" className="size-9 rounded-full bg-muted/40 hover:bg-muted/60 transition-colors shrink-0">
+                    <XIcon className="size-4" />
+                  </Button>
+                </DrawerClose>
+              </DrawerHeader>
+
+              <div className="flex-1 overflow-y-auto px-6 overscroll-contain custom-scrollbar">
+                <div className="flex flex-col gap-8 py-6 pb-40">
                   {/* Status */}
                   <div className="space-y-3">
                     <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60">Status da Questão</h4>
@@ -246,41 +263,81 @@ export function QuestionFilters() {
                   <Separator />
 
                   {/* Groups */}
-                  <div className="space-y-6">
-                    {filterGroups.map((group) => (
-                      <div key={group.id} className="space-y-3">
-                        <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
-                          {group.icon}
-                          {group.label}
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {group.options.slice(0, 12).map((opt) => {
-                            const checked = (selected[group.id] ?? []).includes(opt.value)
-                            return (
-                              <button
-                                key={opt.value}
-                                onClick={() => toggleOption(group.id, opt.value)}
-                                className={cn(
-                                  "px-3 h-8 rounded-lg text-[12px] font-semibold border transition-all",
-                                  checked ? "bg-primary/10 border-primary text-primary" : "bg-muted/30 text-muted-foreground border-transparent"
+                  <div className="pb-8">
+                    <Accordion type="single" collapsible className="border-none shadow-none rounded-none w-full">
+                      {filterGroups.map((group) => {
+                        const groupSelected = selected[group.id] ?? []
+                        
+                        return (
+                          <AccordionItem key={group.id} value={group.id} className="border-b border-border/40 last:border-0 px-0">
+                            <AccordionTrigger className="hover:no-underline py-4 px-0">
+                              <span className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-wider text-muted-foreground/80">
+                                <span className="size-8 rounded-lg bg-muted/40 flex items-center justify-center text-foreground shrink-0">
+                                  {group.icon}
+                                </span>
+                                {group.label}
+                                {groupSelected.length > 0 && (
+                                  <span className="size-5 rounded-full bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
+                                    {groupSelected.length}
+                                  </span>
                                 )}
-                              >
-                                {opt.label}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    ))}
+                              </span>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-0">
+                              <div className="space-y-4 pt-1 pb-4">
+                                {/* Search inside group */}
+                                <div className="relative">
+                                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+                                  <Input 
+                                    placeholder={`Buscar ${group.label.toLowerCase()}...`}
+                                    className="pl-10 h-11 bg-muted/30 border-none rounded-xl text-sm placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-primary/20"
+                                    value={dropdownSearch}
+                                    onChange={(e) => setDropdownSearch(e.target.value)}
+                                  />
+                                </div>
+                                
+                                {/* Options list */}
+                                <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                                  {group.options
+                                    .filter((opt) => opt.label.toLowerCase().includes(dropdownSearch.toLowerCase()))
+                                    .map((opt) => {
+                                      const checked = groupSelected.includes(opt.value)
+                                      return (
+                                        <button
+                                          key={opt.value}
+                                          onClick={() => toggleOption(group.id, opt.value)}
+                                          className={cn(
+                                            "px-4 h-9 rounded-xl text-[12px] font-bold border transition-all duration-200",
+                                            checked 
+                                              ? "bg-primary text-primary-foreground border-primary shadow-sm shadow-primary/20" 
+                                              : "bg-muted/40 text-muted-foreground border-transparent hover:bg-muted/60"
+                                          )}
+                                        >
+                                          {opt.label}
+                                        </button>
+                                      )
+                                    })}
+                                  {group.options.filter(opt => opt.label.toLowerCase().includes(dropdownSearch.toLowerCase())).length === 0 && (
+                                    <div className="w-full py-8 text-center">
+                                      <p className="text-sm text-muted-foreground font-medium">Nenhum resultado encontrado</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        )
+                      })}
+                    </Accordion>
                   </div>
                 </div>
-              </ScrollArea>
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background via-background to-transparent border-t flex gap-3">
-                <Button variant="outline" className="flex-1 h-12 rounded-2xl font-bold" onClick={clearAll}>Limpar</Button>
-                <Button className="flex-[2] h-12 rounded-2xl font-bold text-base" onClick={applyFilters}>Ver Resultados</Button>
               </div>
-            </SheetContent>
-          </Sheet>
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-card via-card to-transparent border-t border-border/40 flex gap-3">
+                <Button variant="outline" className="flex-1 h-12 rounded-2xl font-bold" onClick={clearAll}>Limpar</Button>
+                <Button className="flex-[2] h-12 rounded-2xl font-bold text-base shadow-lg shadow-primary/20" onClick={applyFilters}>Ver Resultados</Button>
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
 
         {/* Desktop Filter Toggle */}
@@ -382,25 +439,25 @@ export function QuestionFilters() {
                         {group.options
                           .filter((opt) => opt.label.toLowerCase().includes(dropdownSearch.toLowerCase()))
                           .map((opt) => {
-                          const checked = groupSelected.includes(opt.value)
-                          return (
-                            <button
-                              key={opt.value}
-                              onClick={() => toggleOption(group.id, opt.value)}
-                              className="w-full flex items-center gap-3 px-3 py-2 text-[13px] hover:bg-accent transition-colors text-left"
-                            >
-                              <span className={cn(
-                                "size-4 rounded shrink-0 border flex items-center justify-center transition-colors",
-                                checked ? "bg-foreground border-foreground" : "border-border"
-                              )}>
-                                {checked && <CheckIcon className="size-2.5 text-background" />}
-                              </span>
-                              <span className={cn("truncate", checked ? "text-foreground font-medium" : "text-muted-foreground")}>
-                                {opt.label}
-                              </span>
-                            </button>
-                          )
-                        })}
+                            const checked = groupSelected.includes(opt.value)
+                            return (
+                              <button
+                                key={opt.value}
+                                onClick={() => toggleOption(group.id, opt.value)}
+                                className="w-full flex items-center gap-3 px-3 py-2 text-[13px] hover:bg-accent transition-colors text-left"
+                              >
+                                <span className={cn(
+                                  "size-4 rounded shrink-0 border flex items-center justify-center transition-colors",
+                                  checked ? "bg-foreground border-foreground" : "border-border"
+                                )}>
+                                  {checked && <CheckIcon className="size-2.5 text-background" />}
+                                </span>
+                                <span className={cn("truncate", checked ? "text-foreground font-medium" : "text-muted-foreground")}>
+                                  {opt.label}
+                                </span>
+                              </button>
+                            )
+                          })}
                       </div>
                     </div>
                   )}

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { GalleryVerticalEndIcon, Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
+import { StudyNetworkAnimation } from "@/components/animations/study-network"
 
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -29,7 +30,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter()
   const [showPassword, setShowPassword] = React.useState(false)
-  
+
   const {
     control,
     handleSubmit,
@@ -62,7 +63,10 @@ export function LoginForm({
                 <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground mb-2">
                   <GalleryVerticalEndIcon className="size-6" />
                 </div>
-                <h1 className="text-2xl font-bold font-heading">Bem-vindo de volta</h1>
+                <h1 className="text-3xl font-bold tracking-tight font-heading">
+                  Bem-vindo ao <br />
+                  <span className="text-primary">Quero Passar</span>
+                </h1>
                 <p className="text-sm text-balance text-muted-foreground">
                   Acesse sua conta para continuar seus estudos ou gestão
                 </p>
@@ -131,27 +135,32 @@ export function LoginForm({
                 Entrar na Plataforma
               </Button>
 
-              
+
 
               <FieldDescription className="text-center mt-2">
                 Não tem uma conta? <a href="/signup" className="underline underline-offset-4 hover:text-primary font-semibold">Criar agora</a>
               </FieldDescription>
             </FieldGroup>
           </form>
-          <div className="relative hidden bg-muted md:block">
-            <img
-              src="/images/signup-bg.png"
-              alt="Anvora Login Background"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.4]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent flex items-end p-12">
-              <div className="space-y-2">
-                <p className="text-lg font-medium text-white italic">
-                  "O Anvora simplificou toda a nossa logística de provas e diagnósticos em tempo real."
+          <div className="relative hidden bg-[#0a0a0a] md:block overflow-hidden">
+            <StudyNetworkAnimation />
+            
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent flex items-end p-12">
+              <div className="relative z-10 space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-2">
+                  <div className="size-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Sistema Inteligente</span>
+                </div>
+                <p className="text-2xl font-bold leading-tight text-white font-heading">
+                  "O Quero Passar simplificou toda a nossa logística de estudos e diagnósticos em tempo real."
                 </p>
-                <p className="text-sm text-white/60">
-                  — Coordenação Escolar, Colégio Delta
-                </p>
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-full bg-gradient-to-br from-primary to-blue-600 border border-white/20" />
+                  <div>
+                    <p className="text-sm font-bold text-white">Coordenação Escolar</p>
+                    <p className="text-xs text-white/60">Colégio Delta</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

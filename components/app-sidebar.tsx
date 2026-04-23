@@ -144,7 +144,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 '/aluno/dashboard'
               }>
                 <CommandIcon className="size-5!" />
-                <span className="text-base font-semibold">Anvora</span>
+                <span className="text-base font-bold tracking-tight">Quero Passar</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

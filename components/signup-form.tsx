@@ -29,6 +29,7 @@ import {
   GraduationCapIcon,
   Building2Icon
 } from "lucide-react"
+import { StudyNetworkAnimation } from "@/components/animations/study-network"
 
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -85,7 +86,7 @@ export function SignupForm({
               </div>
 
               {/* Seleção de Perfil */}
-              <Controller
+              {/* <Controller
                 control={control}
                 name="role"
                 render={({ field, fieldState }) => (
@@ -119,7 +120,7 @@ export function SignupForm({
                     )}
                   </Field>
                 )}
-              />
+              /> */}
 
               <Controller
                 control={control}
@@ -239,20 +240,25 @@ export function SignupForm({
               </FieldDescription>
             </FieldGroup>
           </form>
-          <div className="relative hidden bg-muted md:block">
-            <img
-              src="/images/signup-bg.png"
-              alt="Anvora Signup Background"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.4]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent flex items-end p-12">
-              <div className="space-y-2">
-                <p className="text-lg font-medium text-white italic">
-                  "O Anvora transformou a maneira como gerencio meus simulados e acompanho o progresso dos meus alunos."
+          <div className="relative hidden bg-[#0a0a0a] md:block overflow-hidden">
+            <StudyNetworkAnimation />
+            
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent flex items-end p-12">
+              <div className="relative z-10 space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-2">
+                  <div className="size-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Novo Padrão</span>
+                </div>
+                <p className="text-2xl font-bold leading-tight text-white font-heading">
+                  "O Quero Passar transformou a maneira como gerencio meus simulados e acompanho meus alunos."
                 </p>
-                <p className="text-sm text-white/60">
-                  — Prof. Ricardo, Diretor Pedagógico
-                </p>
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-full bg-gradient-to-br from-primary to-blue-600 border border-white/20" />
+                  <div>
+                    <p className="text-sm font-bold text-white">Prof. Ricardo</p>
+                    <p className="text-xs text-white/60">Diretor Pedagógico</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -5,6 +5,12 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils";
 import { FontSizeProvider } from "@/components/providers/font-size-provider"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Quero Passar | Plataforma Inteligente de Questões",
+  description: "A plataforma definitiva para sua aprovação em concursos e exames.",
+}
 
 const notoSansHeading = Noto_Sans({subsets:['latin'],variable:'--font-heading'});
 const nunitoSans = Nunito_Sans({subsets:['latin'],variable:'--font-sans'})

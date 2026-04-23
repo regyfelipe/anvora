@@ -16,7 +16,7 @@ export function FontSizeProvider({ children }: { children: React.ReactNode }) {
 
   // Load from local storage
   useEffect(() => {
-    const saved = localStorage.getItem("anvora-font-size")
+    const saved = localStorage.getItem("quero-passar-font-size")
     if (saved) {
       setFontSize(parseInt(saved, 10))
     }
@@ -24,23 +24,23 @@ export function FontSizeProvider({ children }: { children: React.ReactNode }) {
 
   const increaseFontSize = () => {
     setFontSize((prev) => {
-      const next = Math.min(prev + 2, 24)
-      localStorage.setItem("anvora-font-size", next.toString())
+      const next = Math.min(prev + 1, 24)
+      localStorage.setItem("quero-passar-font-size", next.toString())
       return next
     })
   }
 
   const decreaseFontSize = () => {
     setFontSize((prev) => {
-      const next = Math.max(prev - 2, 12)
-      localStorage.setItem("anvora-font-size", next.toString())
+      const next = Math.max(prev - 1, 12)
+      localStorage.setItem("quero-passar-font-size", next.toString())
       return next
     })
   }
 
   const resetFontSize = () => {
     setFontSize(16)
-    localStorage.setItem("anvora-font-size", "16")
+    localStorage.setItem("quero-passar-font-size", "16")
   }
 
   return (
