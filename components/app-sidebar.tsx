@@ -68,6 +68,26 @@ export const alunoNavItems = [
   },
 ]
 
+export const teacherNavItems = [
+  { title: "Dashboard", url: "/professor/dashboard", icon: <LayoutDashboardIcon /> },
+  { title: "Minhas Turmas", url: "/professor/turmas", icon: <CommandIcon /> },
+  { title: "Gerenciar Questões", url: "/professor/questoes", icon: <HelpCircleIcon /> },
+  { title: "Nova Questão", url: "/dashboard/questoes/criar", icon: <PlusIcon className="size-4" /> },
+]
+
+export const institutionNavItems = [
+  { title: "Dashboard", url: "/instituicao/dashboard", icon: <LayoutDashboardIcon /> },
+  { title: "Gerenciar Professores", url: "/instituicao/professores", icon: <UserIcon /> },
+  { title: "Gerenciar Alunos", url: "/instituicao/alunos", icon: <UsersIcon /> },
+  { title: "Banco de Questões", url: "/instituicao/questoes", icon: <HelpCircleIcon /> },
+]
+
+export function getNavItemsByRole(role: string) {
+  if (role === "teacher") return teacherNavItems
+  if (role === "institution") return institutionNavItems
+  return alunoNavItems
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [user, setUser] = React.useState({
     name: "Carregando...",
@@ -109,28 +129,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   }
 
-  const getNavItems = () => {
-    if (user.role === "teacher") {
-      return [
-        { title: "Dashboard", url: "/professor/dashboard", icon: <LayoutDashboardIcon /> },
-        { title: "Minhas Turmas", url: "/professor/turmas", icon: <CommandIcon /> },
-        { title: "Gerenciar Questões", url: "/professor/questoes", icon: <HelpCircleIcon /> },
-        { title: "Nova Questão", url: "/dashboard/questoes/criar", icon: <PlusIcon className="size-4" /> },
-      ]
-    }
-    if (user.role === "institution") {
-      return [
-        { title: "Dashboard", url: "/instituicao/dashboard", icon: <LayoutDashboardIcon /> },
-        { title: "Gerenciar Professores", url: "/instituicao/professores", icon: <UserIcon /> },
-        { title: "Gerenciar Alunos", url: "/instituicao/alunos", icon: <UsersIcon /> },
-        { title: "Banco de Questões", url: "/instituicao/questoes", icon: <HelpCircleIcon /> },
-      ]
-    }
-    return alunoNavItems
-  }
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" className="hidden md:flex" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -152,7 +153,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain title={getRoleTitle()} items={getNavItems()} />
+        <NavMain title={getRoleTitle()} items={getNavItemsByRole(user.role)} />
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
 
